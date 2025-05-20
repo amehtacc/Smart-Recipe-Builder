@@ -1,19 +1,22 @@
+// Import necessary hooks and components
 import React, { useState, useEffect } from "react";
-import { Save, Upload, Printer, Moon, Sun, Plus } from "lucide-react";
-import Input from "./Input";
-import TextArea from "./TextArea";
-import Button from "./Button";
-import ServingsAdjuster from "./ServingsAdjuster";
-import AddIngredientForm from "./AddIngredientForm";
-import IngredientList from "./IngredientList";
-import MarkdownPreview from "./MarkdownPreview";
+import { Save, Upload, Printer } from "lucide-react"; // Icons
+import Input from "./Input"; // Reusable input component
+import TextArea from "./TextArea"; // Reusable textarea for instructions
+import Button from "./Button"; // Reusable button component
+import ServingsAdjuster from "./ServingsAdjuster"; // Component to change servings
+import AddIngredientForm from "./AddIngredientForm"; // Form to add/edit ingredients
+import IngredientList from "./IngredientList"; // Displays list of ingredients
+import MarkdownPreview from "./MarkdownPreview"; // Renders markdown-formatted instructions
 
 function RecipeBuilder() {
+  // Initialize recipe state lazily (read from localStorage if available)
   const [recipe, setRecipe] = useState(() => {
     const savedRecipe = localStorage.getItem("recipe");
     if (savedRecipe) {
       return JSON.parse(savedRecipe);
     }
+    // Default state if nothing saved
     return {
       title: "New Recipe",
       servings: 2,
@@ -21,25 +24,31 @@ function RecipeBuilder() {
       instructions: "",
     };
   });
+
+  // State for tracking the ingredient being edited
   const [editIngredient, setEditIngredient] = useState(null);
+
+  // Toggle state for showing markdown preview of instructions
   const [showMarkdownPreview, setShowMarkdownPreview] = useState(false);
 
-  // Save recipe to localStorage whenever it changes
+  // Persist recipe state to localStorage whenever it changes
   useEffect(() => {
     localStorage.setItem("recipe", JSON.stringify(recipe));
   }, [recipe]);
 
+  // Update recipe title on user input
   function handleTitleChange(e) {
     setRecipe({ ...recipe, title: e.target.value });
   }
 
+  // Update recipe instructions on user input
   function handleInstructionsChange(e) {
     setRecipe({ ...recipe, instructions: e.target.value });
   }
 
+  // Adjust servings and proportionally update ingredient quantities
   function handleServingsChange(newServings) {
     const ratio = newServings / recipe.servings;
-
     setRecipe({
       ...recipe,
       servings: newServings,
@@ -50,16 +59,19 @@ function RecipeBuilder() {
     });
   }
 
+  // Add a new ingredient or update existing one
   function handleAddIngredient(ingredient) {
     if (editIngredient) {
+      // If editing, update the specific ingredient
       setRecipe({
         ...recipe,
         ingredients: recipe.ingredients.map((item) =>
           item.id === editIngredient.id ? ingredient : item
         ),
       });
-      setEditIngredient(null);
+      setEditIngredient(null); // Clear editing state
     } else {
+      // Otherwise, append the new ingredient
       setRecipe({
         ...recipe,
         ingredients: [...recipe.ingredients, ingredient],
@@ -67,10 +79,12 @@ function RecipeBuilder() {
     }
   }
 
+  // Begin editing an ingredient
   function handleEditIngredient(ingredient) {
     setEditIngredient(ingredient);
   }
 
+  // Remove an ingredient by its ID
   function handleRemoveIngredient(id) {
     setRecipe({
       ...recipe,
@@ -80,10 +94,12 @@ function RecipeBuilder() {
     });
   }
 
+  // Trigger print dialog
   function printRecipe() {
     window.print();
   }
 
+  // Save recipe to a downloadable JSON file
   function saveRecipe() {
     const blob = new Blob([JSON.stringify(recipe, null, 2)], {
       type: "application/json",
@@ -98,6 +114,7 @@ function RecipeBuilder() {
     URL.revokeObjectURL(url);
   }
 
+  // Load recipe from a user-uploaded JSON file
   function loadRecipe(e) {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -113,30 +130,24 @@ function RecipeBuilder() {
       }
     };
     reader.readAsText(file);
-    e.target.value = "";
+    e.target.value = ""; // Reset input so same file can be re-uploaded if needed
   }
 
   return (
     <div className="w-full mx-auto py-8 px-4 max-w-5xl print:py-2">
+      {/* Header section with title and control buttons */}
       <div className="flex justify-between items-center mb-6 print:hidden">
         <h1 className="text-2xl md:text-3xl font-bold">Smart Recipe Builder</h1>
         <div className="flex gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={printRecipe}
-            aria-label="Print recipe"
-          >
+          {/* Print button */}
+          <Button variant="outline" size="sm" onClick={printRecipe} aria-label="Print recipe">
             <Printer className="h-5 w-5" />
           </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={saveRecipe}
-            aria-label="Save recipe"
-          >
+          {/* Save to JSON button */}
+          <Button variant="outline" size="sm" onClick={saveRecipe} aria-label="Save recipe">
             <Save className="h-5 w-5" />
           </Button>
+          {/* Upload from JSON input (invisible but clickable via styled Button) */}
           <div className="relative">
             <input
               type="file"
@@ -144,7 +155,7 @@ function RecipeBuilder() {
               accept=".json"
               onChange={loadRecipe}
               className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-              aria_label="Load recipe"
+              aria-label="Load recipe"
             />
             <Button variant="outline" size="sm" aria-label="Upload recipe">
               <Upload className="h-5 w-5" />
@@ -153,32 +164,31 @@ function RecipeBuilder() {
         </div>
       </div>
 
+      {/* Main grid layout: left (form) + right (preview) */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-7">
-        <div className="space-y-6">
+        {/* Left side: Input Forms (not printed) */}
+        <div className="space-y-6 print:hidden">
+          {/* Recipe title and servings */}
           <div className="w-full border rounded-xl p-5 shadow-sm">
-            <h2 className="text-black text-xl md:text-2xl font-semibold mb-7">
-              Recipe Details
-            </h2>
+            <h2 className="text-black text-xl md:text-2xl font-semibold mb-7">Recipe Details</h2>
             <div className="space-y-4">
-              <div>
-                <Input
-                  label="Recipe Title"
-                  name="recipe-title"
-                  placeholder="Enter recipe title"
-                  value={recipe.title}
-                  onChange={handleTitleChange}
-                />
-              </div>
+              <Input
+                label="Recipe Title"
+                name="recipe-title"
+                placeholder="Enter recipe title"
+                value={recipe.title}
+                onChange={handleTitleChange}
+              />
               <ServingsAdjuster
                 servings={recipe.servings}
                 onChange={handleServingsChange}
               />
             </div>
           </div>
+
+          {/* Ingredient form and list */}
           <div className="w-full border rounded-xl p-5 shadow-sm">
-            <h2 className="text-black text-xl md:text-2xl font-semibold mb-7">
-              Ingredients
-            </h2>
+            <h2 className="text-black text-xl md:text-2xl font-semibold mb-7">Ingredients</h2>
             <AddIngredientForm
               onSubmit={handleAddIngredient}
               editIngredient={editIngredient}
@@ -191,12 +201,12 @@ function RecipeBuilder() {
           </div>
         </div>
 
+        {/* Right side: Instructions and Preview */}
         <div className="space-y-6">
-          <div className="w-full border rounded-xl p-5 shadow-sm">
+          {/* Markdown Editor / Preview Toggle */}
+          <div className="w-full border rounded-xl p-5 shadow-sm print:hidden">
             <div className="flex justify-between items-center mb-7">
-              <h2 className="text-black text-xl md:text-2xl font-semibold">
-                Instructions
-              </h2>
+              <h2 className="text-black text-xl md:text-2xl font-semibold">Instructions</h2>
               <Button
                 variant="outline"
                 size="md"
@@ -219,15 +229,16 @@ function RecipeBuilder() {
             </div>
           </div>
 
-          <div className="w-full border rounded-xl p-5 shadow-sm print:block">
-            <h2 className="text-black text-xl md:text-2xl font-semibold mb-7">
+          {/* Final Recipe Preview (also shown in print view) */}
+          <div className="w-full border rounded-xl p-5 shadow-sm">
+            <h2 className="text-black text-xl md:text-2xl font-semibold mb-7 print:hidden">
               Recipe Preview
             </h2>
-
-            <div className="space-y-4">
-              <h3 className="text-black text-lg font-medium">{recipe.title}</h3>
+            <div className="space-y-4 print:block">
+              <h3 className="text-black text-lg font-medium print:text-2xl">{recipe.title}</h3>
               <p>Servings: {recipe.servings}</p>
 
+              {/* Ingredient List */}
               <div>
                 <h3 className="text-black text-lg font-medium">Ingredients</h3>
                 <ul className="list-disc pl-5">
@@ -239,6 +250,7 @@ function RecipeBuilder() {
                 </ul>
               </div>
 
+              {/* Instructions Preview */}
               <div>
                 <h3 className="text-black text-lg font-medium">Instructions</h3>
                 <MarkdownPreview markdown={recipe.instructions} />
