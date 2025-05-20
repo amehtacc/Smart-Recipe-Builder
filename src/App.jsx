@@ -1,9 +1,12 @@
-import React from 'react'
+import React from "react";
+import RecipeBuilder from "./components/RecipeBuilder";
 
 function App() {
   return (
-    <div>App</div>
-  )
+    <>
+      <RecipeBuilder />
+    </>
+  );
 }
 
-export default App
+export default App;
