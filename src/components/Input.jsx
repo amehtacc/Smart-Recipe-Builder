@@ -9,9 +9,8 @@ function Input({
   onChange,
   required = false,
   error,
-  min,
-  step,
   className = "",
+  ...props
 }) {
   return (
     <>
@@ -29,8 +28,7 @@ function Input({
           value={value}
           onChange={onChange}
           required={required}
-          min={min}
-          step={step}
+          {...props}
           className={`w-full px-3 py-2 text-black text-base border border-gray-300 rounded-md outline-none focus:ring-2 focus:ring-skyBlue focus:border-transparent ${error ? 'border-red-500': ''} transition-all duration-200`}
         />
       </div>
