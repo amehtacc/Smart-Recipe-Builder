@@ -4,6 +4,11 @@ A modern React-based web application to help you create, manage, and print your 
 
 <br>
 
+## 📺 Live Project
+- Live Link: [Smart Recipe Builder](https://smart-recipe-builder.netlify.app/)
+
+<br>
+
 ## ✨ Features
 
 - 📝 **Create and Edit Recipes** – Add a title, servings, ingredients, and instructions.
@@ -29,8 +34,8 @@ A modern React-based web application to help you create, manage, and print your 
 1. **Clone the repository:**
 
    ```bash
-   git clone https://github.com/your-username/recipe-builder.git
-   cd recipe-builder
+   git clone https://github.com/amehtacc/Smart-Recipe-Builder.git
+   cd Smart-Recipe-Builder
 
    ```
 
