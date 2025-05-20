@@ -13,9 +13,9 @@ function ServingsAdjuster({ servings, onChange }) {
   }
   return (
     <div className="flex flex-col gap-2">
-      <label htmlFor="" className="text-base font-medium text-black/70">
+      <div className="text-base font-medium text-black/70">
         Servings
-      </label>
+      </div>
       <div className="flex items-center mt-1">
         <Button
           variant="outline"
